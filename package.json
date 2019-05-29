@@ -1,0 +1,22 @@
+{
+  "name": "run",
+  "version": "0.0.1",
+  "description": "Remake of my original, first, completed game.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MagnusFrater/Run.git"
+  },
+  "author": "Todd Everett Griffin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MagnusFrater/Run/issues"
+  },
+  "homepage": "https://github.com/MagnusFrater/Run#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
