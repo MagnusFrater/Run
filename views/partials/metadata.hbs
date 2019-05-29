@@ -1,0 +1,44 @@
+{{!-- Generic --}}
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<meta name='application-name' content='{{projectName}}'>
+<meta name='description' content='{{description}}'>
+<meta name='keywords' content='{{keywords}}'>
+<meta name='author' content='{{author}}'>
+
+{{!-- Android --}}
+<meta name='theme-color' content='{{themeColor}}'>
+
+{{!-- Apple --}}
+<meta name='apple-mobile-web-app-title' content='{{projectName}}'>
+
+{{!-- Twitter --}}
+<meta name='twitter:card' content='summary'>
+<meta name='twitter:url' content='{{> fullUrl }}'>
+<meta name='twitter:title' content='{{projectName}}'>
+<meta name='twitter:description' content='{{description}}'>
+{{!-- <meta name='twitter:image' content=''> --}}
+
+{{!-- Facebook --}}
+<meta property='og:site_name' content='{{projectName}}' />
+<meta property='og:url' content='{{> fullUrl }}' />
+<meta property='og:title' content='{{projectName}}' />
+<meta property='og:description' content='{{description}}' />
+{{!-- <meta property='og:image' content='' /> --}}
+
+{{!-- Microsoft Internet Explorer --}}
+<meta http-equiv='x-ua-compatible' content='ie=edge'>
+<meta name='msapplication-tooltip' content='{{description}}'>
+<meta name='msapplication-starturl' content='{{url}}'>
+<meta name='msapplication-navbutton-color' content='{{themeColor}}'>
+{{!-- Tile images must be square PNGs 144px by 144px. 
+For best results, we recommend using a transparent background, 
+not a background that matches the tile’s color. --}}
+{{!-- <meta name="msapplication-TileImage" content="images/benthepcguy-144.png"/> --}}
+<meta name="msapplication-TileColor" content="{{themeColor}}"/>
+
+{{!-- Microformats --}}
+<link href='{{> fullUrl }}' rel='canonical'>
+<link href='{{url}}' rel='home' />
+{{!-- <link type='text/plain' rel='author' href='/humans.txt' /> --}}
+{{!-- <link href='/help' rel='help' > --}}

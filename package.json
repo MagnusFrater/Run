@@ -4,7 +4,9 @@
   "description": "Remake of my original, first, completed game.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "prod": "bash ./scripts/start-production-server.sh",
+    "dev": "bash ./scripts/start-development-server.sh",
+    "update-deps": "bash ./scripts/update-dependencies.sh"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,11 @@
   },
   "homepage": "https://github.com/MagnusFrater/Run#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-handlebars": "^3.1.0",
+    "serve-static": "^1.14.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
   }
 }
