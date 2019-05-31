@@ -1,7 +1,8 @@
 'use strict';
 
+require('dotenv').config()
 const app = require('express')();
-var exphbs  = require('express-handlebars');
+const exphbs  = require('express-handlebars');
 
 const setAppLocals = require('./utils/setAppLocals');
 const templateHelpers = require('./utils/templateHelpers');
@@ -18,6 +19,7 @@ setAppLocals(app);
 // routes
 const routes = require('./routes');
 app.use('/', routes);
- 
-app.listen(3000);
-console.log('server listening on port ' + '3000')
+
+const port = (process.env.PORT)? process.env.PORT : 3000;
+app.listen(port);
+console.log('server listening on port ' + port)
