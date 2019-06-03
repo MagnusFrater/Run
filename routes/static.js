@@ -7,9 +7,9 @@ const serveStatic = require('serve-static');
 const path = require('path');
 
 // Phaser 3
-router.use('/scripts/external/phaser.js', serveStatic(path.join(
+router.use('/scripts/external/pixi.js', serveStatic(path.join(
   __dirname,
-  '../node_modules/phaser/dist/phaser-arcade-physics.min.js'
+  '../node_modules/pixi.js/dist/pixi.min.js'
 )));
 
 // all other static resources

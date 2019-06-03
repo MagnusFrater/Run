@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
       'run',
     ],
     scripts: [
-      'external/phaser',
+      'external/pixi',
       'run',
     ],
   });
