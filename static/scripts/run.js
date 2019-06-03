@@ -1,156 +1,191 @@
-const game = new Phaser.Game({
-  title: 'Run',
-  url: 'localhost', // TODO update this
-  version: '0.0.1',
-  type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-  parent: document.getElementsByTagName('main')[0],
-  backgroundColor: '#fff',
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: {
-        y: 300,
-      },
-      checkCollision: {
-        up: true,
-        down: true,
-        left: true,
-        right: true,
-      },
-    },
-  },
-  fps: {
-    min: 30,
-  },
-  scene: {
-    preload,
-    create,
-    update,
-  },
-});
-
-let cursors;
-
-let gameOver = false;
-
-let platforms;
-let player;
-let stars;
-let bombs;
-
-let score = 0;
-let scoreText;
-
-function preload() {
-  this.load.image('sky', 'static/images/sky.png');
-  this.load.image('ground', 'static/images/platform.png');
-  this.load.image('star', 'static/images/star.png');
-  this.load.image('bomb', 'static/images/bomb.png');
-  this.load.spritesheet('dude', 'static/images/dude.png', { frameWidth: 32, frameHeight: 48 });
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function create() {
-  cursors = this.input.keyboard.createCursorKeys();
+function getRandomHex() {
+  const options = '1234567890abcdef';
+  let s = '0x';
 
-  this.add.image(400, 300, 'sky');
+  for (let i=0; i<6; i++) {
+    s += options.charAt(getRandomInt(0, options.length - 1));
+  }
 
-  platforms = this.physics.add.staticGroup();
-  platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-  platforms.create(600, 400, 'ground');
-  platforms.create(50, 250, 'ground');
-  platforms.create(750, 220, 'ground');
-
-  player = this.physics.add.sprite(100, 450, 'dude');
-  player.setCollideWorldBounds(true);
-  this.physics.add.collider(player, platforms);
-
-  this.anims.create({
-    key: 'left',
-    frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-    frameRate: 10,
-    repeat: -1
-  });
-
-  this.anims.create({
-    key: 'turn',
-    frames: [ { key: 'dude', frame: 4 } ],
-    frameRate: 20
-  });
-
-  this.anims.create({
-    key: 'right',
-    frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-    frameRate: 10,
-    repeat: -1
-  });
-
-  stars = this.physics.add.group({
-    key: 'star',
-    repeat: 11,
-    setXY: { x: 12, y: 0, stepX: 70 }
-  });
-
-  stars.children.iterate(child => {
-    child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-  });
-
-  this.physics.add.collider(stars, platforms);
-  this.physics.add.overlap(player, stars, collectStar, null, this);
-
-  bombs = this.physics.add.group();
-  this.physics.add.collider(bombs, platforms);
-  this.physics.add.collider(player, bombs, hitBomb, null, this);
-
-  scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
+  return s;
 }
 
-function update() {
-  if (!gameOver) {
-    if (cursors.left.isDown) {
-      player.setVelocityX(-160);
-      player.anims.play('left', true);
-    } else if (cursors.right.isDown) {
-      player.setVelocityX(160);
-      player.anims.play('right', true);
-    } else {
-      player.setVelocityX(0);
-      player.anims.play('turn');
-    }
-    
-    if (cursors.up.isDown && player.body.touching.down) {
-      player.setVelocityY(-330);
+function collideRectRect(r1, r2) {
+  return !(
+    r1.top() > r2.bottom() ||
+    r1.bottom() < r2.top() ||
+    r1.left() > r2.right() ||
+    r1.right() < r1.left()
+  );
+}
+
+class Rectangle {
+  top() {
+    return this.rectangle.y;
+  }
+
+  bottom() {
+    return this.rectangle.y + this.rectangle.height;
+  }
+
+  left() {
+    return this.rectangle.x;
+  }
+
+  right() {
+    return this.rectangle.x + this.rectangle.width;
+  }
+}
+
+const fiveSecondsInMillis = 5 * 1000 / 50;
+const ballSize = 25;
+const ballVelocity = 2.0;
+let lastBallSpawn;
+let balls = [];
+let ballCountUI;
+
+class Ball extends Rectangle {
+  constructor(id, x, y, width, height) {
+    super();
+
+    this.id = id;
+
+    this.rectangle = new PIXI.Graphics();
+    this.rectangle.lineStyle(1, 0x000000, 1, 0);
+    this.rectangle.beginFill(getRandomHex());
+    this.rectangle.drawRect(0, 0, width, height);
+    this.rectangle.endFill();
+    this.rectangle.x = x;
+    this.rectangle.y = y;
+    this.xDir = (getRandomInt(0, 1) === 0)? -1 : 1;
+    this.yDir = 1;
+
+    gameScene.addChild(this.rectangle);
+  }
+
+  update(delta) {
+    let xDelta = ballVelocity + delta;
+    let yDelta = ballVelocity + delta;
+
+    while (xDelta > 0 && yDelta > 0) {
+      // move one step horizontally
+      this.rectangle.x += 1 * this.xDir;
+
+      // collision w/ left or right walls
+      if (this.left() < 0 || this.right() > app.screen.width) {
+        this.xDir *= -1;
+      }
+
+      // move one step vertically
+      this.rectangle.y += 1 * this.yDir;
+
+      // collision w/ ceiling or floor
+      if (this.top() < 0 || this.bottom() > app.screen.height) {
+        this.yDir *= -1;
+      }
+
+      // collision w/ floor
+      if (collideRectRect(this, floor)) {
+        this.yDir *= -1;
+      }
+
+      xDelta--;
+      yDelta--;
     }
   }
 }
 
-function collectStar(player, star) {
-  star.disableBody(true, true);
+function spawnBall() {
+  balls.push(new Ball(balls.length, getRandomInt(0, screenWidth - ballSize), 0, ballSize, ballSize));
+  lastBallSpawn = Date.now();
+  ballCountUI.text = balls.length;
+}
 
-  score += 10;
-  scoreText.setText('Score: ' + score);
+let floor;
 
-  if (stars.countActive(true) === 0) {
-    stars.children.iterate(function (child) {
-      child.enableBody(true, child.x, 0, true, true);
-    });
+class Platform extends Rectangle {
+  constructor(x, y, width, height, hex) {
+    super();
 
-    let x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-    let bomb = bombs.create(x, 16, 'bomb');
-    bomb.setBounce(1);
-    bomb.setCollideWorldBounds(true);
-    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    this.rectangle = new PIXI.Graphics();
+
+    this.rectangle.lineStyle(1, 0x000000, 1, 0);
+
+    this.rectangle.beginFill(hex);
+    this.rectangle.drawRect(0, 0, width, height);
+    this.rectangle.endFill();
+
+    this.rectangle.x = x;
+    this.rectangle.y = y;
+
+    gameScene.addChild(this.rectangle);
   }
 }
 
-function hitBomb(player, bomb) {
-  this.physics.pause();
-  player.setTint(0xff0000);
-  player.anims.play('turn');
-  gameOver = true;
+const screenWidth = 1080;
+const screenRatio = 16 / 9;
+let app;
+
+let state;
+let gameScene = new PIXI.Container();
+let gameOverlayScene = new PIXI.Container();
+let gameOverScene = new PIXI.Container();
+
+function setup() {
+  // create Pixi.js application
+  app = new PIXI.Application({
+    width: screenWidth,
+    height: screenWidth / screenRatio,
+    backgroundColor: 0xffffff
+  });
+  document.getElementsByTagName('main')[0].appendChild(app.view);
+
+  // add scenes
+  app.stage.addChild(gameScene);
+  app.stage.addChild(gameOverlayScene);
+  app.stage.addChild(gameOverScene);
+  gameOverScene.visible = false;
+
+  // add ball count UI
+  ballCountUI = new PIXI.Text('0');
+  gameOverlayScene.addChild(ballCountUI);
+
+  // create platform
+  floor = new Platform(0, app.screen.height - 32, app.screen.width, 32, 0x555555);
+
+  // spawn first ball
+  spawnBall();
+
+  // set the game state to `play`
+  state = play;
+
+  // start the game loop 
+  app.ticker.add(delta => gameLoop(delta));
 }
+
+function gameLoop(delta) {
+  state(delta);
+}
+
+function play(delta) {
+  // update each individual ball
+  balls.forEach(ball => {
+    ball.update(delta);
+  });
+
+  // spawn new ball every 5 seconds
+  if (Date.now() - lastBallSpawn >= fiveSecondsInMillis) {
+    spawnBall();
+  }
+}
+
+function end() {
+  clearInterval(ballSpawner);
+}
+
+setup();

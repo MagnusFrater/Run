@@ -1,7 +1,7 @@
 main {
-  background-color: black;
+  text-align: center;
 }
 
 canvas {
-  border: 3px solid black;
+  border: 1px solid black;
 }
