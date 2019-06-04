@@ -203,8 +203,6 @@ class Player extends Rectangle {
 
     for (let i=0; i<balls.length; i++) {
       if (collideRectRect(this, balls[i])) {
-        console.log(this);
-        console.log(balls[i]);
         state = end;
       }
     }
@@ -220,7 +218,11 @@ class Player extends Rectangle {
 
   groundPound() {
     if (!this.grounded && !this.groundPounding) {
-      if (this.yVelocity < 10) this.yVelocity = 10;
+      if (this.yVelocity < 15) {
+        this.yVelocity = 15;
+      } else {
+        this.yVelocity += 15;
+      }
       this.groundPounding = true;
     }
   }
@@ -231,6 +233,7 @@ const screenRatio = 16 / 9;
 let app;
 
 let state;
+let titleScene = new PIXI.Container();
 let gameScene = new PIXI.Container();
 let gameOverlayScene = new PIXI.Container();
 let gameOverScene = new PIXI.Container();
@@ -284,12 +287,17 @@ function setup() {
   });
 
   // add scenes
+  app.stage.addChild(titleScene);
   app.stage.addChild(gameScene);
   app.stage.addChild(gameOverlayScene);
   app.stage.addChild(gameOverScene);
   gameOverScene.visible = false;
 
-  // set up game over screen
+  // set up title scene
+  const titleUI = new PIXI.Text('RUN');
+  titleScene.addChild(titleUI);
+
+  // set up game over scene
   const blackScreen = new PIXI.Graphics();
   blackScreen.beginFill(0x000000);
   blackScreen.drawRect(0, 0, app.screen.width, app.screen.height);
@@ -314,10 +322,25 @@ function setup() {
   spawnBall();
 
   // set the game state to `play`
-  state = play;
+  state = title;
 
   // start the game loop 
   app.ticker.add(delta => gameLoop(delta));
+}
+
+function title() {
+  titleScene.visible = true;
+  gameScene.visible = false;
+  gameOverlayScene.visible = false;
+  gameOverScene.visible = false;
+
+  setTimeout(() => {
+    titleScene.visible = false;
+    gameScene.visible = true;
+    gameOverlayScene.visible = true;
+
+    state = play;
+  }, 2000);
 }
 
 function gameLoop(delta) {
