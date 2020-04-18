@@ -5,10 +5,10 @@ function getRandomInt(min, max) {
 }
 
 function getRandomHex() {
-  const options = '1234567890abcdef';
-  let s = '0x';
+  const options = "1234567890abcdef";
+  let s = "0x";
 
-  for (let i=0; i<6; i++) {
+  for (let i = 0; i < 6; i++) {
     s += options.charAt(getRandomInt(0, options.length - 1));
   }
 
@@ -17,8 +17,8 @@ function getRandomHex() {
 
 function collideRectRect(r1, r2) {
   return !(
-    r2.left() > r1.right() || 
-    r2.right() < r1.left() || 
+    r2.left() > r1.right() ||
+    r2.right() < r1.left() ||
     r2.top() > r1.bottom() ||
     r2.bottom() < r1.top()
   );
@@ -61,7 +61,7 @@ class Ball extends Rectangle {
     this.rectangle.drawRect(0, 0, width, height);
     this.rectangle.endFill();
     this.rectangle.position.set(x, y);
-    this.xDir = (getRandomInt(0, 1) === 0)? -1 : 1;
+    this.xDir = getRandomInt(0, 1) === 0 ? -1 : 1;
     this.yDir = 1;
 
     gameScene.addChild(this.rectangle);
@@ -72,7 +72,7 @@ class Ball extends Rectangle {
     let yDelta = ballVelocity + delta;
 
     // move horizontally
-    for (let i=0; i<xDelta; i++) {
+    for (let i = 0; i < xDelta; i++) {
       // move one step
       this.rectangle.x += 1 * this.xDir;
 
@@ -83,7 +83,7 @@ class Ball extends Rectangle {
     }
 
     // move vertically
-    for (let i=0; i<yDelta; i++) {
+    for (let i = 0; i < yDelta; i++) {
       // move one step
       this.rectangle.y += 1 * this.yDir;
 
@@ -101,7 +101,15 @@ class Ball extends Rectangle {
 }
 
 function spawnBall() {
-  balls.push(new Ball(balls.length, getRandomInt(0, screenWidth - ballSize), 0, ballSize, ballSize));
+  balls.push(
+    new Ball(
+      balls.length,
+      getRandomInt(0, screenWidth - ballSize),
+      0,
+      ballSize,
+      ballSize
+    )
+  );
   lastBallSpawn = Date.now();
   ballCountUI.text = balls.length;
 }
@@ -131,8 +139,10 @@ let player;
 class Player extends Rectangle {
   constructor(x, y) {
     super();
-    
-    this.rectangle = new PIXI.Sprite(PIXI.loader.resources["static/images/kazoo.png"].texture);
+
+    this.rectangle = new PIXI.Sprite(
+      PIXI.loader.resources["static/img/kazoo.png"].texture
+    );
     this.rectangle.position.set(x, y);
     this.rectangle.scale.set(3, 3);
 
@@ -157,7 +167,7 @@ class Player extends Rectangle {
 
     // moving left
     if (this.moveLeft && !this.moveRight && !this.groundPounding) {
-      for (let i=0; i<xDelta; i++) {
+      for (let i = 0; i < xDelta; i++) {
         // collision w/ left wall
         if (this.left() > 0) {
           this.rectangle.x += -1;
@@ -166,8 +176,8 @@ class Player extends Rectangle {
     }
 
     // moving right
-    if (this.moveRight && !this.moveLeft  && !this.groundPounding) {
-      for (let i=0; i<xDelta; i++) {
+    if (this.moveRight && !this.moveLeft && !this.groundPounding) {
+      for (let i = 0; i < xDelta; i++) {
         // collision w/ right wall
         if (this.right() < app.screen.width) {
           this.rectangle.x += 1;
@@ -178,7 +188,7 @@ class Player extends Rectangle {
     // going down
     if (!this.grounded) {
       if (yDelta > 0) {
-        for (let i=0; i<Math.abs(yDelta); i++) {
+        for (let i = 0; i < Math.abs(yDelta); i++) {
           // collision w/ floor
           if (collideRectRect(this, floor)) {
             this.grounded = true;
@@ -189,8 +199,9 @@ class Player extends Rectangle {
             this.rectangle.y += 1;
           }
         }
-      } else { // going up
-        for (let i=0; i<Math.abs(yDelta); i++) {
+      } else {
+        // going up
+        for (let i = 0; i < Math.abs(yDelta); i++) {
           // collision w/ ceiling
           if (this.top() < 0) {
             this.yVelocity = 0;
@@ -201,7 +212,7 @@ class Player extends Rectangle {
       }
     }
 
-    for (let i=0; i<balls.length; i++) {
+    for (let i = 0; i < balls.length; i++) {
       if (collideRectRect(this, balls[i])) {
         state = end;
       }
@@ -247,15 +258,15 @@ function setup() {
   app = new PIXI.Application({
     width: screenWidth,
     height: screenWidth / screenRatio,
-    backgroundColor: 0xffffff
+    backgroundColor: 0xffffff,
   });
-  document.getElementsByTagName('main')[0].appendChild(app.view);
+  document.getElementsByTagName("main")[0].appendChild(app.view);
 
   // add key listeners
-  document.addEventListener('keydown', event => {
+  document.addEventListener("keydown", (event) => {
     // player move left
     if (event.keyCode === 37 || event.keyCode === 65) {
-        player.moveLeft = true;
+      player.moveLeft = true;
     }
 
     // player move right
@@ -274,10 +285,10 @@ function setup() {
     }
   });
 
-  document.addEventListener('keyup', event => {
+  document.addEventListener("keyup", (event) => {
     // player move left
     if (event.keyCode === 37 || event.keyCode === 65) {
-        player.moveLeft = false;
+      player.moveLeft = false;
     }
 
     // player move right
@@ -294,7 +305,7 @@ function setup() {
   gameOverScene.visible = false;
 
   // set up title scene
-  const titleUI = new PIXI.Text('RUN');
+  const titleUI = new PIXI.Text("RUN");
   titleScene.addChild(titleUI);
 
   // set up game over scene
@@ -305,15 +316,21 @@ function setup() {
   blackScreen.position.set(0, 0);
   gameOverScene.addChild(blackScreen);
 
-  gameOverMessage = new PIXI.Text('Game Over', {fill: 0xffffff});
+  gameOverMessage = new PIXI.Text("Game Over", { fill: 0xffffff });
   gameOverScene.addChild(gameOverMessage);
 
   // add ball count UI
-  ballCountUI = new PIXI.Text('0');
+  ballCountUI = new PIXI.Text("0");
   gameOverlayScene.addChild(ballCountUI);
 
   // create platform
-  floor = new Platform(0, app.screen.height - 32, app.screen.width, 32, 0x555555);
+  floor = new Platform(
+    0,
+    app.screen.height - 32,
+    app.screen.width,
+    32,
+    0x555555
+  );
 
   // create player
   player = new Player(app.screen.width / 2, app.screen.height / 2);
@@ -324,8 +341,8 @@ function setup() {
   // set the game state to `play`
   state = title;
 
-  // start the game loop 
-  app.ticker.add(delta => gameLoop(delta));
+  // start the game loop
+  app.ticker.add((delta) => gameLoop(delta));
 }
 
 function title() {
@@ -349,7 +366,7 @@ function gameLoop(delta) {
 
 function play(delta) {
   // update each individual ball
-  balls.forEach(ball => {
+  balls.forEach((ball) => {
     ball.update(delta);
   });
 
@@ -368,10 +385,8 @@ function end() {
 }
 
 PIXI.Loader.shared
-  .add([
-    'static/images/kazoo.png',
-  ])
-  .on('progress', (loader, resource) => {
+  .add(["static/img/kazoo.png"])
+  .on("progress", (loader, resource) => {
     console.log("progress: " + loader.progress + "%");
   })
   .load(setup);
