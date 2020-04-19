@@ -1,0 +1,23 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="{{.LanguageCode}}-{{.CountryCode}}">
+	<head>
+		{{template "metadata" .}}
+    {{template "favicon" .}}
+
+		{{range .Styles}}
+			<link rel="stylesheet" type="text/css" href="/static/css/{{.}}" />
+		{{end}}
+	</head>
+
+	<body>
+		<main>
+			{{template "main" .}}
+		</main>
+
+		{{range .Scripts}}
+			<script type='text/javascript' src='/static/js/{{.}}' defer></script>
+		{{end}}
+	</body>
+</html>
+{{end}}
