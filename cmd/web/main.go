@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ type application struct {
 }
 
 func main() {
-	addr := flag.String("addr", ":80", "HTTP network address")
+	addr := flag.String("addr", "80", "HTTP network address")
 	flag.Parse()
 
 	app := &application{
@@ -30,8 +31,14 @@ func main() {
 	}
 	app.templateCache = templateCache
 
+	// default port to OS ENV, otherwise command-line flag
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = *addr
+	}
+
 	srv := &http.Server{
-		Addr:     *addr,
+		Addr:     fmt.Sprintf(":%s", port),
 		ErrorLog: app.errorLog,
 		Handler:  app.routes(),
 
@@ -40,7 +47,7 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	app.infoLog.Printf("Starting server on %s\n", *addr)
+	app.infoLog.Printf("Starting server on %s\n", srv.Addr)
 	err = srv.ListenAndServe()
 	app.errorLog.Fatal(err)
 }
