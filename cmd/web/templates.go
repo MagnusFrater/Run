@@ -25,9 +25,7 @@ type (
 )
 
 func newTemplateCache(dir string) (map[string]*template.Template, error) {
-	var functions = template.FuncMap{
-		// "capitalize": strings.ToUpper,
-	}
+	var functions = template.FuncMap{}
 
 	cache := map[string]*template.Template{}
 
